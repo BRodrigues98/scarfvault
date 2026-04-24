@@ -8,7 +8,7 @@
 
 const BASE = "/api";
 
-// ── Scarves ────────────────────────────────────────────────────────────────
+// -- Scarves ----------------------------------------------------------------
 
 /**
  * Load all scarves with their photo URL arrays.
@@ -53,6 +53,22 @@ export async function deleteScarf(id) {
 }
 
 /**
+ * Update an existing scarf's metadata. Returns the updated scarf
+ */
+export async function updateScarf(id, data) {
+  const res = await fetch(`${BASE}/scarves/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if(!res.ok) throw new Error("Failed to update scarf");
+  const updated = await res.json();
+  const { photos: _photos, ...withoutPhotos} = updated;
+  return withoutPhotos;
+}
+
+/**
  * Toggle the favourite flag for a scarf.
  * Returns { id, favorite: boolean }.
  */
@@ -62,7 +78,7 @@ export async function toggleFavorite(id) {
   return res.json();
 }
 
-// ── Photos ─────────────────────────────────────────────────────────────────
+// -- Photos -----------------------------------------------------------------
 
 /**
  * Upload compressed photos (base64 data URIs) for a scarf.
@@ -92,7 +108,7 @@ export async function deletePhoto(url) {
   if (!res.ok) throw new Error("Failed to delete photo");
 }
 
-// ── Export ─────────────────────────────────────────────────────────────────
+// -- Export -----------------------------------------------------------------
 
 /**
  * Build JSON export payload from in-memory data.

@@ -9,7 +9,14 @@ import { typeIcon } from "../utils";
  * condition dot, favourite star, tags, and contextual subtitle
  * (player name or match fixture depending on type).
  */
-export default function ScarfCard({ scarf, photos, onDelete, onToggleFavorite, animIdx }) {
+export default function ScarfCard({
+  scarf,
+  photos,
+  onDelete,
+  onEdit,
+  onToggleFavorite,
+  animIdx,
+}) {
   const [confirming, setConfirming] = useState(false);
   const [lightbox, setLightbox] = useState(null);
 
@@ -17,13 +24,17 @@ export default function ScarfCard({ scarf, photos, onDelete, onToggleFavorite, a
     scarf.type === "Player" && scarf.playerName
       ? scarf.playerName
       : scarf.type === "Match Scarf" && scarf.fixture
-      ? scarf.fixture
-      : null;
+        ? scarf.fixture
+        : null;
 
   return (
     <>
       {lightbox !== null && (
-        <Lightbox photos={photos} start={lightbox} onClose={() => setLightbox(null)} />
+        <Lightbox
+          photos={photos}
+          start={lightbox}
+          onClose={() => setLightbox(null)}
+        />
       )}
 
       <div
@@ -36,8 +47,10 @@ export default function ScarfCard({ scarf, photos, onDelete, onToggleFavorite, a
       >
         {/* Club colour stripe */}
         <div className="stripe-bar">
-          <div className="stripe s1" /><div className="stripe s2" />
-          <div className="stripe s1" /><div className="stripe s2" />
+          <div className="stripe s1" />
+          <div className="stripe s2" />
+          <div className="stripe s1" />
+          <div className="stripe s2" />
           <div className="stripe s1" />
         </div>
 
@@ -64,11 +77,17 @@ export default function ScarfCard({ scarf, photos, onDelete, onToggleFavorite, a
                   title={scarf.condition}
                 />
               )}
-              <span className="type-chip">{typeIcon(scarf.type)} {scarf.type}</span>
+              <span className="type-chip">
+                {typeIcon(scarf.type)} {scarf.type}
+              </span>
               <button
                 className={`fav-btn${scarf.favorite ? " fav-on" : ""}`}
                 onClick={() => onToggleFavorite(scarf.id)}
-                title={scarf.favorite ? "Remove from favourites" : "Mark as favourite"}
+                title={
+                  scarf.favorite
+                    ? "Remove from favourites"
+                    : "Mark as favourite"
+                }
               >
                 ★
               </button>
@@ -80,26 +99,45 @@ export default function ScarfCard({ scarf, photos, onDelete, onToggleFavorite, a
 
           <div className="meta-row">
             <span>{scarf.country}</span>
-            {scarf.league && <><span className="sep">·</span><span>{scarf.league}</span></>}
-            {scarf.year && <><span className="sep">·</span><span>{scarf.year}</span></>}
+            {scarf.league && (
+              <>
+                <span className="sep">·</span>
+                <span>{scarf.league}</span>
+              </>
+            )}
+            {scarf.year && (
+              <>
+                <span className="sep">·</span>
+                <span>{scarf.year}</span>
+              </>
+            )}
           </div>
 
           {(scarf.condition || scarf.acquired) && (
             <div className="cond-row">
               {scarf.condition && (
-                <span className="cond-label" style={{ color: COND_COLORS[scarf.condition] }}>
+                <span
+                  className="cond-label"
+                  style={{ color: COND_COLORS[scarf.condition] }}
+                >
                   {scarf.condition}
                 </span>
               )}
-              {scarf.condition && scarf.acquired && <span className="sep">·</span>}
-              {scarf.acquired && <span className="acquired-txt">📦 {scarf.acquired}</span>}
+              {scarf.condition && scarf.acquired && (
+                <span className="sep">·</span>
+              )}
+              {scarf.acquired && (
+                <span className="acquired-txt">📦 {scarf.acquired}</span>
+              )}
             </div>
           )}
 
           {scarf.tags?.length > 0 && (
             <div className="card-tags">
               {scarf.tags.map((tag) => (
-                <span key={tag} className="card-tag">{tag}</span>
+                <span key={tag} className="card-tag">
+                  {tag}
+                </span>
               ))}
             </div>
           )}
@@ -111,11 +149,25 @@ export default function ScarfCard({ scarf, photos, onDelete, onToggleFavorite, a
           {confirming ? (
             <div className="confirm-row">
               <span>Remove?</span>
-              <button className="btn-yes" onClick={() => onDelete(scarf.id)}>Yes</button>
-              <button className="btn-no" onClick={() => setConfirming(false)}>No</button>
+              <button className="btn-yes" onClick={() => onDelete(scarf.id)}>
+                Yes
+              </button>
+              <button className="btn-no" onClick={() => setConfirming(false)}>
+                No
+              </button>
             </div>
           ) : (
-            <button className="btn-delete" onClick={() => setConfirming(true)}>✕ Remove</button>
+            <div className="confirm-row">
+              <button
+                className="btn-delete"
+                onClick={() => setConfirming(true)}
+              >
+                ✕ Remove
+              </button>
+              <button className="btn-edit" onClick={() => onEdit(scarf)}>
+                ✎ Edit
+              </button>
+            </div>
           )}
         </div>
       </div>

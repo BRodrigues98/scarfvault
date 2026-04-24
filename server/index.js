@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const IS_DEV = process.env.NODE_ENV !== "production";
 
-// ── Middleware ─────────────────────────────────────────────────────────────
+// -- Middleware -------------------------------------------------------------
 
 // Allow Vite dev server to call the API during local development
 if (IS_DEV) {
@@ -18,7 +18,7 @@ if (IS_DEV) {
 // 20mb covers ~12 compressed photos per request comfortably
 app.use(express.json({ limit: "20mb" }));
 
-// ── Static files ───────────────────────────────────────────────────────────
+// -- Static files -----------------------------------------------------------
 
 // Serve uploaded photos
 app.use("/photos", express.static(PHOTOS_DIR));
@@ -29,7 +29,7 @@ if (!IS_DEV) {
   app.use(express.static(CLIENT_DIST));
 }
 
-// ── API routes ─────────────────────────────────────────────────────────────
+// -- API routes -------------------------------------------------------------
 
 app.use("/api/scarves", require("./routes/scarves"));
 
@@ -38,7 +38,7 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", ts: new Date().toISOString() });
 });
 
-// ── SPA fallback ───────────────────────────────────────────────────────────
+// -- SPA fallback -----------------------------------------------------------
 // Send index.html for any non-API route so client-side routing works
 
 if (!IS_DEV) {
@@ -47,7 +47,7 @@ if (!IS_DEV) {
   });
 }
 
-// ── Start ──────────────────────────────────────────────────────────────────
+// -- Start ------------------------------------------------------------------
 
 app.listen(PORT, () => {
   console.log(`ScarfVault running on http://localhost:${PORT}`);

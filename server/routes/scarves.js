@@ -4,7 +4,7 @@ const { stmts, rowToScarf, PHOTOS_DIR } = require("../db");
 const path = require("path");
 const fs = require("fs");
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// -- Helpers ----------------------------------------------------------------
 
 /** Attach photo URLs to a formatted scarf object. */
 function withPhotos(scarf) {
@@ -15,7 +15,7 @@ function withPhotos(scarf) {
   };
 }
 
-// ── GET /api/scarves ───────────────────────────────────────────────────────
+// -- GET /api/scarves -------------------------------------------------------
 
 router.get("/", (req, res) => {
   try {
@@ -28,7 +28,7 @@ router.get("/", (req, res) => {
   }
 });
 
-// ── POST /api/scarves ──────────────────────────────────────────────────────
+// -- POST /api/scarves ------------------------------------------------------
 
 router.post("/", (req, res) => {
   try {
@@ -63,7 +63,7 @@ router.post("/", (req, res) => {
   }
 });
 
-// ── DELETE /api/scarves/:id ────────────────────────────────────────────────
+// -- DELETE /api/scarves/:id ------------------------------------------------
 
 router.delete("/:id", (req, res) => {
   try {
@@ -83,7 +83,7 @@ router.delete("/:id", (req, res) => {
   }
 });
 
-// ── PATCH /api/scarves/:id/favorite ───────────────────────────────────────
+// -- PATCH /api/scarves/:id/favorite ---------------------------------------
 
 router.patch("/:id/favorite", (req, res) => {
   try {
@@ -98,7 +98,44 @@ router.patch("/:id/favorite", (req, res) => {
   }
 });
 
-// ── POST /api/scarves/:id/photos ───────────────────────────────────────────
+// -- PATCH /api/scarves/:id -------------------------------------------------
+
+router.patch("/:id", (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const body = req.body;
+
+    const existing = stmts.getScarfById.get(id);
+    if(!existing) return res.status(404).json({ error: "Not Found" });
+
+    stmts.updateScarf.run({
+      id,
+      club:       body.club?.trim()       || existing.club,
+      country:    body.country?.trim()    || existing.country,
+      league:     body.league             ?? existing.league,
+      type:       body.type               ?? existing.type,
+      condition:  body.condition          ?? existing.condition,
+      acquired:   body.acquired           ?? existing.acquired,
+      year:       body.year               ?? existing.year,
+      notes:      body.notes              ?? existing.notes,
+      color1:     body.color1             ?? existing.color1,
+      color2:     body.color2             ?? existing.color2,
+      playerName: body.playerName         ?? existing.player_name,
+      fixture:    body.fixture            ?? existing.fixture,
+      tags:       JSON.stringify(Array.isArray(body.tags) ? body.tags : JSON.parse(existing.tags || "[]")),
+      favorite:   body.favorite !== undefined ? (body.favorite ? 1 : 0) : existing.favorite,
+      isWish:     body.isWish   !== undefined ? (body.isWish   ? 1 : 0) : existing.is_wish,
+    });
+
+    const updated = rowToScarf(stmts.getScarfById.get(id));
+    res.json(withPhotos(updated));
+  } catch(err) {
+    console.error("PATCH /api/scarves/:id", err);
+    res.status(500).json({ error: "Failed to update scarf" });
+  }
+})
+
+// -- POST /api/scarves/:id/photos -------------------------------------------
 // Body: { photos: ["data:image/jpeg;base64,...", ...] }
 // Returns: { urls: ["/photos/id/filename.jpg", ...] }
 
@@ -138,7 +175,7 @@ router.post("/:id/photos", (req, res) => {
   }
 });
 
-// ── DELETE /api/scarves/:id/photos/:filename ───────────────────────────────
+// -- DELETE /api/scarves/:id/photos/:filename -------------------------------
 
 router.delete("/:id/photos/:filename", (req, res) => {
   try {
