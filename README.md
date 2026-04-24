@@ -194,7 +194,7 @@ scarfvault/
 
 Things not built yet:
 
-- Edit existing scarves (currently add/delete only, no update)
+- ~~Edit existing scarves (currently add/delete only, no update)~~ ✅ Edit button on each card and row opens the form pre-populated with the scarf's current data. Supports updating all metadata fields and adding/removing photos. Implemented via `PATCH /api/scarves/:id`.
 - Photo management on existing scarves (add/remove after creation)
 - JSON import via UI (restore a backup without terminal access)
 - Map view with a pin per scarf, using Leaflet.js + OpenStreetMap Nominatim

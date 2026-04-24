@@ -52,31 +52,31 @@ db.exec(`
  */
 function rowToScarf(row) {
   return {
-    id:         row.id,
-    club:       row.club,
-    country:    row.country,
-    league:     row.league     || "",
-    type:       row.type       || "Club Colors",
-    condition:  row.condition  || "",
-    acquired:   row.acquired   || "",
-    year:       row.year       || "",
-    notes:      row.notes      || "",
-    color1:     row.color1     || "#c8102e",
-    color2:     row.color2     || "#ffffff",
+    id: row.id,
+    club: row.club,
+    country: row.country,
+    league: row.league || "",
+    type: row.type || "Club Colors",
+    condition: row.condition || "",
+    acquired: row.acquired || "",
+    year: row.year || "",
+    notes: row.notes || "",
+    color1: row.color1 || "#c8102e",
+    color2: row.color2 || "#ffffff",
     playerName: row.player_name || "",
-    fixture:    row.fixture    || "",
-    tags:       JSON.parse(row.tags || "[]"),
-    favorite:   row.favorite === 1,
-    isWish:     row.is_wish   === 1,
-    createdAt:  row.created_at,
+    fixture: row.fixture || "",
+    tags: JSON.parse(row.tags || "[]"),
+    favorite: row.favorite === 1,
+    isWish: row.is_wish === 1,
+    createdAt: row.created_at,
   };
 }
 
 // Prepared statements (compiled once, reused)
 const stmts = {
-  listScarves:   db.prepare("SELECT * FROM scarves ORDER BY created_at DESC"),
-  getScarfById:  db.prepare("SELECT * FROM scarves WHERE id = ?"),
-  insertScarf:   db.prepare(`
+  listScarves: db.prepare("SELECT * FROM scarves ORDER BY created_at DESC"),
+  getScarfById: db.prepare("SELECT * FROM scarves WHERE id = ?"),
+  insertScarf: db.prepare(`
     INSERT INTO scarves
       (id, club, country, league, type, condition, acquired, year, notes,
        color1, color2, player_name, fixture, tags, favorite, is_wish, created_at)
@@ -84,15 +84,44 @@ const stmts = {
       (@id, @club, @country, @league, @type, @condition, @acquired, @year, @notes,
        @color1, @color2, @playerName, @fixture, @tags, @favorite, @isWish, @createdAt)
   `),
-  deleteScarf:   db.prepare("DELETE FROM scarves WHERE id = ?"),
-  toggleFav:     db.prepare("UPDATE scarves SET favorite = ((favorite | 1) - (favorite & 1)) WHERE id = ?"),
-  getFavState:   db.prepare("SELECT favorite FROM scarves WHERE id = ?"),
+  updateScarf: db.prepare(`
+    UPDATE scarves SET
+      club        = @club,
+      country     = @country,
+      league      = @league,
+      type        = @type,
+      condition   = @condition,
+      acquired    = @acquired,
+      year        = @year,
+      notes       = @notes,
+      color1      = @color1,
+      color2      = @color2,
+      player_name = @playerName,
+      fixture     = @fixture,
+      tags        = @tags,
+      favorite    = @favorite,
+      is_wish     = @isWish
+    WHERE id = @id
+  `),
+  deleteScarf: db.prepare("DELETE FROM scarves WHERE id = ?"),
+  toggleFav: db.prepare(
+    "UPDATE scarves SET favorite = ((favorite | 1) - (favorite & 1)) WHERE id = ?",
+  ),
+  getFavState: db.prepare("SELECT favorite FROM scarves WHERE id = ?"),
 
-  getPhotos:     db.prepare("SELECT * FROM photos WHERE scarf_id = ? ORDER BY sort_order"),
-  insertPhoto:   db.prepare("INSERT INTO photos (scarf_id, filename, sort_order) VALUES (?, ?, ?)"),
-  deletePhoto:   db.prepare("DELETE FROM photos WHERE scarf_id = ? AND filename = ?"),
+  getPhotos: db.prepare(
+    "SELECT * FROM photos WHERE scarf_id = ? ORDER BY sort_order",
+  ),
+  insertPhoto: db.prepare(
+    "INSERT INTO photos (scarf_id, filename, sort_order) VALUES (?, ?, ?)",
+  ),
+  deletePhoto: db.prepare(
+    "DELETE FROM photos WHERE scarf_id = ? AND filename = ?",
+  ),
   deleteAllPhotos: db.prepare("DELETE FROM photos WHERE scarf_id = ?"),
-  maxSortOrder:  db.prepare("SELECT COALESCE(MAX(sort_order), -1) AS max FROM photos WHERE scarf_id = ?"),
+  maxSortOrder: db.prepare(
+    "SELECT COALESCE(MAX(sort_order), -1) AS max FROM photos WHERE scarf_id = ?",
+  ),
 };
 
 module.exports = { db, stmts, rowToScarf, PHOTOS_DIR };

@@ -1,4 +1,4 @@
-# ── Stage 1: Build ────────────────────────────────────────────────────────
+# -- Stage 1: Build --------------------------------------------------------
 FROM node:20-alpine AS builder
 
 # better-sqlite3 requires native compilation
@@ -17,7 +17,7 @@ COPY server/package*.json ./server/
 RUN cd server && npm ci --omit=dev
 COPY server/ ./server/
 
-# ── Stage 2: Runtime ───────────────────────────────────────────────────────
+# -- Stage 2: Runtime -------------------------------------------------------
 FROM node:20-alpine AS runtime
 
 WORKDIR /app
